@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import studying from '../assets/studying.png'
+import studying from '../../assets/studying.png'
 
 export default function GetStarted(props) {
 

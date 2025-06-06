@@ -1,12 +1,22 @@
 import React from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 import { X } from "lucide-react";
 
 export default function AuthForm(props) {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState(""); 
     const [confirmPassword, setConfirmPassword] = React.useState("");
+    const [error, setError] = React.useState(false);
+    const [errorMessage, setErrorMessage] = React.useState("");
+
+    function showError(message) {
+        setErrorMessage(message);
+        setError(true);
+        setTimeout(() => {
+            setError(false);
+        }, 3000);
+    }
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -14,15 +24,28 @@ export default function AuthForm(props) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log("Signed in");
+                    
                 })
                 .catch((error) => {
                     console.error(error.message);
                 });
         } else {
             if (password !== confirmPassword) {
-                alert("Passwords do not match");
+                showError("Passwords do not match!");
                 return;
-            } else {
+            } else if (password.length < 8) {
+                showError("Password must be at least 8 characters long!");
+                return;
+            } else if (!/[A-Z]/.test(password)) {
+                showError("Password must contain at least one uppercase letter!");
+                return;
+            } else if (!/[a-z]/.test(password)) {
+                showError("Password must contain at least one lowercase letter!");
+                return;
+            } else if (!/[0-9]/.test(password)) {
+                showError("Password must contain at least one numeric character!");
+                return;
+            }else {                
                 createUserWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
                         console.log("Signed up");
@@ -101,7 +124,7 @@ export default function AuthForm(props) {
                             className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"
                         />
                     </div>
-
+                    {error && <p className='text-red-600 text-sm mt-0 mb-1'>{errorMessage}</p>}   
                     {!props.isSigningIn && (
                         <div>
                             <label htmlFor="confirmPassword" className="block text-sm mb-1">Confirm Password</label>
