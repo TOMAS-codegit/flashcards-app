@@ -2,6 +2,7 @@ import React from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { X } from "lucide-react";
+import { useNavigate } from 'react-router-dom'
 
 export default function AuthForm(props) {
     const [email, setEmail] = React.useState("");
@@ -9,6 +10,8 @@ export default function AuthForm(props) {
     const [confirmPassword, setConfirmPassword] = React.useState("");
     const [error, setError] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState("");
+
+    const navigate = useNavigate(); 
 
     function showError(message) {
         setErrorMessage(message);
@@ -24,7 +27,7 @@ export default function AuthForm(props) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log("Signed in");
-                    
+                    navigate('/latest');
                 })
                 .catch((error) => {
                     console.error(error.message);
