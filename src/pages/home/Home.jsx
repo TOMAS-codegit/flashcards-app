@@ -6,49 +6,51 @@ import React from 'react';
 
 export default function Home() {
     
-      const [showForm, setShowForm] = React.useState(false);
-      const [isSigningIn, setIsSigningIn] = React.useState(true)
+  const [showForm, setShowForm] = React.useState(false)
+  const [isSigningIn, setIsSigningIn] = React.useState(true)
+  const [username, setUsername] = React.useState("");
     
-      function toggleForm() {
-        setShowForm(!showForm);
-      }
+  function toggleForm() {
+    setShowForm(!showForm);
+  }
     
-      function toggleSignIn() {
-        setIsSigningIn(!isSigningIn);
-      }
+  function toggleSignIn() {
+    setIsSigningIn(!isSigningIn);
+  }
     
-      function showSignUp() {
-        setIsSigningIn(false);
-      }
+  function showSignUp() {
+    setIsSigningIn(false);
+  }
     
-      function showSignIn() {
-        setIsSigningIn(true);
-      }
+  function showSignIn() {
+    setIsSigningIn(true);
+  }
 
-      return (
+  return (  
 
-    
-
-      <div className="min-h-screen bg-[#ebd2c7] flex flex-col relative">
+    <div className="min-h-screen bg-[#ebd2c7] flex flex-col relative">
       
-        {showForm ? <AuthForm toggleForm={toggleForm}
-          isSigningIn={isSigningIn}
-          toggleSignIn={toggleSignIn}
-        /> : null}
+      {showForm ? <AuthForm
+        toggleForm={toggleForm}
+        isSigningIn={isSigningIn}
+        toggleSignIn={toggleSignIn}
+        username={username}
+        setUsername={setUsername}
+      /> : null}
 
-        {!showForm && <Header 
-          toggleForm={toggleForm}
-          showSignIn={showSignIn}
-        />}
+      {!showForm && <Header 
+        toggleForm={toggleForm}
+        showSignIn={showSignIn}
+      />}
 
-        {!showForm && <GetStarted 
-          toggleForm={toggleForm}
-          showSignUp={showSignUp}
-        />}
+      {!showForm && <GetStarted 
+        toggleForm={toggleForm}
+        showSignUp={showSignUp}
+      />}
 
-        {!showForm && <Footer />}
+      {!showForm && <Footer />}
       
-      </div>
+    </div>
 
   );
 }

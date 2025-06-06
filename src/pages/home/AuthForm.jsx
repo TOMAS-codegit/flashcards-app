@@ -1,6 +1,8 @@
 import React from 'react';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import { X } from "lucide-react";
 import { useNavigate } from 'react-router-dom'
 
@@ -21,16 +23,33 @@ export default function AuthForm(props) {
         }, 3000);
     }
 
-    function handleSubmit(e) {
+    function clearForm() {
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+        setError(false);
+        setErrorMessage("");
+        if (!props.isSigningIn) {
+            props.setUsername("");
+        }
+    }
+
+    async function handleSubmit(e) {
         e.preventDefault();
         if (props.isSigningIn) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log("Signed in");
+                    console.log(userCredential.user);
                     navigate('/latest');
                 })
                 .catch((error) => {
-                    console.error(error.message);
+                    if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+                        showError("Invalid email or password.");
+                    } else {
+                        showError("Something went wrong. Try again.");
+                        console.error(error.message);
+                    }
                 });
         } else {
             if (password !== confirmPassword) {
@@ -50,12 +69,26 @@ export default function AuthForm(props) {
                 return;
             }else {                
                 createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        console.log("Signed up");
-                    })
-                    .catch((error) => {
+                    .then(async (userCredential) => {
+                        const user = userCredential.user;
+                    
+                        await setDoc(doc(db, "users", user.uid), {
+                            email: user.email,
+                            username: props.username,
+                            createdAt: new Date()
+                        });
+                        console.log("User signed up and saved to Firestore.");
+                        {props.toggleSignIn()} 
+                        clearForm()
+                })
+                .catch((error) => {
+                    if (error.code === "auth/email-already-in-use") {
+                        showError("Email is already in use!");
+                    } else {
+                        showError("Failed to sign up. Try again.");
                         console.error(error.message);
-                    });                
+                    }
+                });              
             }
         }
     }
@@ -65,7 +98,10 @@ export default function AuthForm(props) {
             <div className='relative bg-[#625866] p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-white'>
                 <button 
                     className="absolute top-3 right-3 text-white hover:text-[#ebd2c7]" 
-                    onClick={props.toggleForm} 
+                    onClick={() => {
+                        clearForm();
+                        props.toggleForm();
+            }} 
                     aria-label="Close"
                 >
                     <X />
@@ -82,7 +118,10 @@ export default function AuthForm(props) {
                                 New to Flashcards App?{" "}
                                 <button 
                                     type="button" 
-                                    onClick={props.toggleSignIn} 
+                                    onClick={() => {
+                                        clearForm();
+                                        props.toggleSignIn();
+                                    }}
                                     className="text-white underline hover:text-[#ebd2c7]"
                                 >
                                     Sign up for free
@@ -93,7 +132,10 @@ export default function AuthForm(props) {
                                 Already have an account?{" "}
                                 <button 
                                     type="button" 
-                                    onClick={props.toggleSignIn} 
+                                    onClick={() => {
+                                        clearForm();
+                                        props.toggleSignIn();
+                                    }}
                                     className="text-white underline hover:text-[#ebd2c7]"
                                 >
                                     Sign In
@@ -114,6 +156,18 @@ export default function AuthForm(props) {
                             className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"
                         />
                     </div>
+
+                    {!props.isSigningIn &&<div>
+                        <label htmlFor="username" className="block text-sm mb-1">Username</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            value={props.username} 
+                            onChange={(e) => props.setUsername(e.target.value)} 
+                            placeholder="Enter your username" 
+                            required
+                            className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"></input>
+                    </div>}
 
                     <div>
                         <label htmlFor="password" className="block text-sm mb-1">Password</label>

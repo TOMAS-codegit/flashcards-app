@@ -1,5 +1,10 @@
+import NavigationBar from '../../components/NavigationBar';
+
 export default function Latest() {
     return (
-        <div>LATEST HERE</div>
+        <>
+            <NavigationBar />
+            <div>LATEST HERE</div>
+        </>
     )
 }
