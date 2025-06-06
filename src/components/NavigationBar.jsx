@@ -1,4 +1,3 @@
-import { Notebook } from 'lucide-react';
 import { House } from 'lucide-react';
 import { FolderOpen } from 'lucide-react';
 import { WalletCards } from 'lucide-react';
@@ -13,28 +12,13 @@ export default function NavigationBar(props) {
 
     return (
         <>
-            <header className="bg-[#8d382b] shadow-sm">
-                <div className="max-w-8xl mx-auto pl-5 pr-10 py-4 flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                            <Notebook className="w-6 h-6 text-[#ebd2c7]" />
-                            <h1 className="text-2xl font-bold text-[#ebd2c7]">Revu</h1>
-                        </div>
-
-                    {/* maybe add search bar if may time pa */}
-
-                    <div className="space-x-6">
-                        <button className="text-[#ebd2c7] hover:text-[#686ba1]">Profile</button>
-                    </div>
-                </div>
-            </header>
-
-            <nav className="bg-[#8d382b] shadow-sm max-w-3xs h-screen py-2 flex text-center">
+            <nav className="bg-[#8d382b] shadow-sm w-[300px] h-screen py-2 flex text-center flex-shrink-0 hidden md:block">
                 <ul className="flex flex-col gap-3 text-center w-full h-full">
                     <li><NavComponents 
                         onClick={() => navigate("/latest")}
                         icon = {<House />}
                         text = "Home"
-                        highlight = {highlight === "Home"}
+                        highlight = {highlight === "Home"}git 
                     /></li>
                     <li><NavComponents 
                         onClick={() =>navigate('/yourDecks')}
