@@ -1,22 +1,18 @@
 import React from 'react';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { X } from "lucide-react";
 
-export default function AuthForm(){
+export default function AuthForm(props){
 
-    const [isSigningIn, setIsSigningIn] = React.useState(true)
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState(""); 
     const [confirmPassword, setConfirmPassword] = React.useState("");
 
-    function toggleForm() {
-        setIsSigningIn(!isSigningIn)
-    }
-
     function handleSubmit(e) {
         e.preventDefault();
 
-        if (isSigningIn) {
+        if (props.isSigningIn) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
                     console.log("Signed in") 
@@ -47,11 +43,12 @@ export default function AuthForm(){
     }
 
     return(
-        <div>
-            <h2>Sign {isSigningIn ? "In" : "Up"}</h2>
-            {isSigningIn ? 
-                <p>New to Flashcards App? <span onClick={toggleForm}><u>Sign up for free</u></span></p> :
-                <p>Already have an account? <span onClick={toggleForm}><u>Sign In</u></span></p>
+        <div className='fixed inset-0 bg-white flex flex-col items-center justify-center z-50'>
+            <button onClick={props.toggleForm}><X /></button>
+            <h2>Sign {props.isSigningIn ? "In" : "Up"}</h2>
+            {props.isSigningIn ? 
+                <p>New to Flashcards App? <span onClick={props.toggleSignIn}><u>Sign up for free</u></span></p> :
+                <p>Already have an account? <span onClick={props.toggleSignIn}><u>Sign In</u></span></p>
             }
             <form onSubmit={handleSubmit}>
                 <div>
@@ -76,7 +73,7 @@ export default function AuthForm(){
                         required 
                     />
                 </div>
-                {!isSigningIn ? 
+                {!props.isSigningIn ? 
                     <div>
                         <label htmlFor = "confirmPassword">Confirm Password</label>
                         <input 
@@ -89,7 +86,7 @@ export default function AuthForm(){
                     </div>
                     : null
                 }
-                <button type="submit">{isSigningIn ? "Login" : "Sign Up"}</button>
+                <button type="submit">{props.isSigningIn ? "Login" : "Sign Up"}</button>
             </form>
         </div>
     )
