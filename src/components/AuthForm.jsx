@@ -1,26 +1,22 @@
 import React from 'react';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { X } from "lucide-react";
 
-export default function AuthForm(props){
-
+export default function AuthForm(props) {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState(""); 
     const [confirmPassword, setConfirmPassword] = React.useState("");
 
     function handleSubmit(e) {
         e.preventDefault();
-
         if (props.isSigningIn) {
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    console.log("Signed in") 
-                    const user = userCredential.user;
+                    console.log("Signed in");
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
+                    console.error(error.message);
                 });
         } else {
             if (password !== confirmPassword) {
@@ -29,65 +25,106 @@ export default function AuthForm(props){
             } else {
                 createUserWithEmailAndPassword(auth, email, password)
                     .then((userCredential) => {
-                        console.log("Signed up") 
-                        const user = userCredential.user;
-                        console.log("User signed up successfully");
+                        console.log("Signed up");
                     })
                     .catch((error) => {
-                        const errorCode = error.code;
-                        const errorMessage = error.message;
-                    });
-                
+                        console.error(error.message);
+                    });                
             }
         }
     }
 
-    return(
-        <div className='fixed inset-0 bg-white flex flex-col items-center justify-center z-50'>
-            <button onClick={props.toggleForm}><X /></button>
-            <h2>Sign {props.isSigningIn ? "In" : "Up"}</h2>
-            {props.isSigningIn ? 
-                <p>New to Flashcards App? <span onClick={props.toggleSignIn}><u>Sign up for free</u></span></p> :
-                <p>Already have an account? <span onClick={props.toggleSignIn}><u>Sign In</u></span></p>
-            }
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor = "email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        value={email} 
-                        onChange={(e) => setEmail(e.target.value)} 
-                        placeholder="Enter your email" 
-                        required 
-                    />
-                </div>
-                <div>
-                    <label htmlFor = "password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password"
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password" 
-                        required 
-                    />
-                </div>
-                {!props.isSigningIn ? 
+    return (
+        <div className='fixed inset-0 flex items-center justify-center bg-[#ebd2c7]/90 z-50'>
+            <div className='relative bg-[#625866] p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-white'>
+                <button 
+                    className="absolute top-3 right-3 text-white hover:text-[#ebd2c7]" 
+                    onClick={props.toggleForm} 
+                    aria-label="Close"
+                >
+                    <X />
+                </button>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <h2 className="text-3xl font-bold text-center text-[#ebd2c7]">
+                        Sign {props.isSigningIn ? "In" : "Up"}
+                    </h2>
+
+                    <p className="text-center text-sm">
+                        {props.isSigningIn ? (
+                            <>
+                                New to Flashcards App?{" "}
+                                <button 
+                                    type="button" 
+                                    onClick={props.toggleSignIn} 
+                                    className="text-white underline hover:text-[#ebd2c7]"
+                                >
+                                    Sign up for free
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                Already have an account?{" "}
+                                <button 
+                                    type="button" 
+                                    onClick={props.toggleSignIn} 
+                                    className="text-white underline hover:text-[#ebd2c7]"
+                                >
+                                    Sign In
+                                </button>
+                            </>
+                        )}
+                    </p>
+
                     <div>
-                        <label htmlFor = "confirmPassword">Confirm Password</label>
+                        <label htmlFor="email" className="block text-sm mb-1">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            value={email} 
+                            onChange={(e) => setEmail(e.target.value)} 
+                            placeholder="Enter your email" 
+                            required
+                            className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="password" className="block text-sm mb-1">Password</label>
                         <input 
                             type="password" 
-                            id="confirmPassword"
-                            value={confirmPassword} 
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm your password" 
-                            required />
+                            id="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Enter your password" 
+                            required
+                            className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"
+                        />
                     </div>
-                    : null
-                }
-                <button type="submit">{props.isSigningIn ? "Login" : "Sign Up"}</button>
-            </form>
+
+                    {!props.isSigningIn && (
+                        <div>
+                            <label htmlFor="confirmPassword" className="block text-sm mb-1">Confirm Password</label>
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                value={confirmPassword} 
+                                onChange={(e) => setConfirmPassword(e.target.value)} 
+                                placeholder="Confirm your password" 
+                                required
+                                className="w-full p-2 rounded-lg bg-[#ebd2c7] text-[#625866] placeholder:text-[#625866]"
+                            />
+                        </div>
+                    )}
+
+                    <button 
+                        type="submit" 
+                        className="w-full mt-2 py-2 bg-[#8d382b] hover:bg-[#a64636] text-white rounded-lg font-semibold"
+                    >
+                        {props.isSigningIn ? "Login" : "Sign Up"}
+                    </button>
+                </form>
+            </div>
         </div>
-    )
+    );
 }

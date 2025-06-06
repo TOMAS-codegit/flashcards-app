@@ -27,22 +27,24 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative">
+    <div className="min-h-screen bg-[#ebd2c7] flex flex-col relative">
       
-      {showForm ? ((<AuthForm toggleForm={toggleForm}
+      {showForm ? <AuthForm toggleForm={toggleForm}
         isSigningIn={isSigningIn}
         toggleSignIn={toggleSignIn}
-      />)) : ( null )}
+      /> : null}
 
-      <Header 
+      {!showForm && <Header 
         toggleForm={toggleForm}
         showSignIn={showSignIn}
-      />
-      <GetStarted 
+      />}
+
+      {!showForm && <GetStarted 
         toggleForm={toggleForm}
         showSignUp={showSignUp}
-      />
-      <Footer />
+      />}
+
+      {!showForm && <Footer />}
       
     </div>
   );

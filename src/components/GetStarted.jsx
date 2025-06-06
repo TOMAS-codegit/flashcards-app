@@ -12,23 +12,23 @@ export default function GetStarted(props) {
         <main className="flex-grow">
             <div className="max-w-7xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
                 <div>
-                    <h2 className="text-4xl font-extrabold text-gray-900 mb-4">
+                    <h2 className="text-4xl font-extrabold text-[#625866] mb-4">
                         Review Anything with Revu
                     </h2>
-                    <p className="text-lg text-gray-700 mb-6">
+                    <p className="text-lg text-[#625866] mb-6">
                         Create, learn, and retain knowledge faster with smart flashcards.
                         Learn better. Learn faster.
                     </p>
                     <button
                         onClick={toggleSignUpForm}
-                        className="inline-flex items-center gap-2 bg-indigo-600 text-white font-medium py-3 px-6 rounded-lg shadow hover:bg-indigo-700 transition"
+                        className="inline-flex items-center gap-2 bg-[#5b9aa0] text-white font-medium py-3 px-6 rounded-lg shadow hover:bg-[#4a878a] transition"
                     >
                         Get Started <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
                 <div>
                     <img
-                        src= {studying}
+                        src={studying}
                         alt="Flashcard Illustration"
                         className="w-full max-w-md mx-auto"  
                     />
