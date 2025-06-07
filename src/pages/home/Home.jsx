@@ -3,12 +3,14 @@ import Header from './Header';
 import GetStarted from './GetStarted';
 import Footer from './Footer';
 import React from 'react';
+import NavHeader from '../../components/NavHeader';
 
 export default function Home() {
     
   const [showForm, setShowForm] = React.useState(false)
   const [isSigningIn, setIsSigningIn] = React.useState(true)
   const [username, setUsername] = React.useState("");
+  const [currentUser, setCurrentUser] = React.useState(null);
     
   function toggleForm() {
     setShowForm(!showForm);
@@ -36,9 +38,11 @@ export default function Home() {
         toggleSignIn={toggleSignIn}
         username={username}
         setUsername={setUsername}
+        onUserChange={setCurrentUser}
       /> : null}
 
-      {!showForm && <Header 
+      {!showForm && <NavHeader 
+        currentUser={currentUser} 
         toggleForm={toggleForm}
         showSignIn={showSignIn}
       />}

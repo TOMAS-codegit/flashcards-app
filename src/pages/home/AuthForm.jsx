@@ -41,6 +41,9 @@ export default function AuthForm(props) {
                 .then((userCredential) => {
                     console.log("Signed in");
                     console.log(userCredential.user);
+                    if (props.onUserChange) {
+                        props.onUserChange(userCredential.user);
+                    }
                     navigate('/latest');
                 })
                 .catch((error) => {
@@ -78,8 +81,11 @@ export default function AuthForm(props) {
                             createdAt: new Date()
                         });
                         console.log("User signed up and saved to Firestore.");
-                        {props.toggleSignIn()} 
-                        clearForm()
+                        if (props.onUserChange) {
+                            props.onUserChange(user);
+                        }
+                        props.toggleSignIn();
+                        clearForm();
                 })
                 .catch((error) => {
                     if (error.code === "auth/email-already-in-use") {

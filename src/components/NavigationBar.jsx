@@ -12,7 +12,7 @@ export default function NavigationBar(props) {
 
     return (
         <>
-            <nav className="bg-[#8d382b] shadow-sm w-[300px] h-screen py-2 flex text-center flex-shrink-0 hidden md:block">
+            <nav className="bg-[#8d382b] shadow-sm w-[300px] h-screen py-2 flex text-center flex-shrink-0 md:block">
                 <ul className="flex flex-col gap-3 text-center w-full h-full">
                     <li><NavComponents 
                         onClick={() => navigate("/latest")}
