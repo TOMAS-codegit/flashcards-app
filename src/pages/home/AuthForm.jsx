@@ -1,5 +1,5 @@
 import React from 'react';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -41,9 +41,12 @@ export default function AuthForm(props) {
                 .then((userCredential) => {
                     console.log("Signed in");
                     console.log(userCredential.user);
-                    if (props.onUserChange) {
-                        props.onUserChange(userCredential.user);
-                    }
+if (props.onUserChange) {
+    console.log("Calling onUserChange with user:", userCredential.user);
+    props.onUserChange(userCredential.user);
+}
+                    console.log("Calling props.toggleForm()");
+                    props.toggleForm();
                     navigate('/latest');
                 })
                 .catch((error) => {
@@ -71,30 +74,36 @@ export default function AuthForm(props) {
                 showError("Password must contain at least one numeric character!");
                 return;
             }else {                
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then(async (userCredential) => {
-                        const user = userCredential.user;
-                    
-                        await setDoc(doc(db, "users", user.uid), {
-                            email: user.email,
-                            username: props.username,
-                            createdAt: new Date()
-                        });
-                        console.log("User signed up and saved to Firestore.");
-                        if (props.onUserChange) {
-                            props.onUserChange(user);
-                        }
-                        props.toggleSignIn();
-                        clearForm();
-                })
-                .catch((error) => {
-                    if (error.code === "auth/email-already-in-use") {
-                        showError("Email is already in use!");
-                    } else {
-                        showError("Failed to sign up. Try again.");
-                        console.error(error.message);
-                    }
-                });              
+createUserWithEmailAndPassword(auth, email, password)
+    .then(async (userCredential) => {
+        const user = userCredential.user;
+
+        // Update Firebase Authentication user profile displayName
+        await updateProfile(user, {
+            displayName: props.username
+        });
+
+        await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            username: props.username,
+            displayName: props.username,
+            createdAt: new Date()
+        });
+        console.log("User signed up and saved to Firestore.");
+        if (props.onUserChange) {
+            props.onUserChange(user);
+        }
+        props.toggleSignIn();
+        clearForm();
+})
+.catch((error) => {
+    if (error.code === "auth/email-already-in-use") {
+        showError("Email is already in use!");
+    } else {
+        showError("Failed to sign up. Try again.");
+        console.error(error.message);
+    }
+});              
             }
         }
     }

@@ -2,11 +2,13 @@ import NavigationBar from '../../components/NavigationBar';
 import studying from '../../assets/studying.png'
 import NavHeader from '../../components/NavHeader';
 
-export default function Latest() {
+export default function Latest(props) {
     return (
         <>  
-            <NavHeader />
-
+            <NavHeader 
+                currentUser={props.currentUser} 
+            />
+            
             <div className='flex'>
             <NavigationBar 
                 highlight="Home"

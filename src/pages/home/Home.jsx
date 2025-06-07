@@ -5,12 +5,16 @@ import Footer from './Footer';
 import React from 'react';
 import NavHeader from '../../components/NavHeader';
 
-export default function Home() {
+export default function Home(props) {
     
   const [showForm, setShowForm] = React.useState(false)
   const [isSigningIn, setIsSigningIn] = React.useState(true)
   const [username, setUsername] = React.useState("");
-  const [currentUser, setCurrentUser] = React.useState(null);
+  
+
+  React.useEffect(() => {
+    console.log("Home.jsx currentUser changed:", props.currentUser);
+  }, [props.currentUser]);
     
   function toggleForm() {
     setShowForm(!showForm);
@@ -38,11 +42,11 @@ export default function Home() {
         toggleSignIn={toggleSignIn}
         username={username}
         setUsername={setUsername}
-        onUserChange={setCurrentUser}
+        onUserChange={props.setCurrentUser}
       /> : null}
 
       {!showForm && <NavHeader 
-        currentUser={currentUser} 
+        currentUser={props.currentUser} 
         toggleForm={toggleForm}
         showSignIn={showSignIn}
       />}

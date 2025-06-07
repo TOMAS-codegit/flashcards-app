@@ -1,10 +1,10 @@
 import NavigationBar from '../../components/NavigationBar';
 import NavHeader from '../../components/NavHeader';
 
-export default function YourDecks() {
+export default function YourDecks(props) {
     return (
         <>
-            <NavHeader />
+            <NavHeader currentUser={props.currentUser} />
             <div className="flex">
                 <NavigationBar 
                     highlight="YourDecks"

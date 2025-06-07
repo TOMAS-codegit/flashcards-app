@@ -1,16 +1,18 @@
 import NavigationBar from '../../components/NavigationBar';
 import NavHeader from '../../components/NavHeader';
 
-export default function Flashcards() {
+export default function Flashcards(props) {
     return (
         <>
-            <NavHeader />
+            <NavHeader currentUser={props.currentUser} />
             <div className="flex">
                 <NavigationBar 
                     highlight="Flashcards"
                 />
                 <div className="flex-grow">
-                    {/* Flashcards page content can go here */}
+                    <h1>
+
+                    </h1>
                 </div>
             </div>
         </>
