@@ -9,7 +9,6 @@ export default function NavigationBar(props) {
     const highlight = props.highlight 
     const navigate = useNavigate(); 
     
-
     return (
         <>
             <nav className="bg-[#8d382b] shadow-sm w-[300px] h-screen py-2 flex text-center flex-shrink-0 md:block">
@@ -18,7 +17,7 @@ export default function NavigationBar(props) {
                         onClick={() => navigate("/latest")}
                         icon = {<House />}
                         text = "Home"
-                        highlight = {highlight === "Home"}git 
+                        highlight = {highlight === "Home"}
                     /></li>
                     <li><NavComponents 
                         onClick={() =>navigate('/yourDecks')}

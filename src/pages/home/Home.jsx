@@ -1,5 +1,4 @@
 import AuthForm from './AuthForm';
-import Header from './Header';
 import GetStarted from './GetStarted';
 import Footer from './Footer';
 import React from 'react';

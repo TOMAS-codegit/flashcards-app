@@ -29,7 +29,6 @@ export default function App() {
   }, []);
 
   return (
-
       <Routes>
         <Route path="/" element={<Home 
           currentUser={currentUser} 
@@ -48,6 +47,5 @@ export default function App() {
           setCurrentUser={setCurrentUser}
         />} />
       </Routes>
-
-  );
+  ); 
 }
