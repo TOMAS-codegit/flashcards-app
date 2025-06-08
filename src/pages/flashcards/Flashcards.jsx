@@ -47,8 +47,7 @@ export default function Flashcards(props) {
 
       alert("Deck saved successfully!");
       if (redirectToLearn) {
-        // Redirect to learn page, e.g.:
-        // navigate(`/learn/${deckRef.id}`);
+        navigate(`/learn/${deckRef.id}`)
       } else {
         navigate("/yourDecks");
       }

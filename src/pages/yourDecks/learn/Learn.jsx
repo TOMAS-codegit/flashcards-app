@@ -1,114 +1,124 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom"; // To get deckId from URL
+import { db } from "../../../firebase";
 import NavHeader from "../../../components/NavHeader";
 import NavigationBar from "../../../components/NavigationBar";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
-// Replace with Firestore fetch later
-const sampleCards = [
-  { question: "What is the capital of France?", answer: "Paris" },
-  { question: "E = mc² is an equation by which scientist?", answer: "Albert Einstein" },
-  { question: "What is the largest planet?", answer: "Jupiter" },
-];
-
-const [flashcards, setFlashcards] = useState([]);
-
-React.useEffect(() => {
-    if (!currentUser) return;
-
-    async function fetchDecks() {
-      try {
-        const q = query(
-          collection(db, "decks"),
-          where("userId", "==", currentUser.uid)
-        );
-        const querySnapshot = await getDocs(q);
-        const userDecks = [];
-        querySnapshot.forEach((doc) => {
-          userDecks.push({ id: doc.id, ...doc.data() });
-        });
-        setDecks(userDecks);
-      } catch (error) {
-        console.error("Error fetching decks:", error);
-      }
-    }
-
-    fetchDecks();
-  }, [currentUser]);
 
 export default function Learn(props) {
+  const { deckId } = useParams(); // Make sure your route is /yourDecks/learn/:deckId
+  const [cards, setCards] = useState([]);
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [deck, setDeck] = useState(null);
 
-  const cards = sampleCards; // Replace with props.cards or fetched data
+  useEffect(() => {
+  async function fetchDeckInfo() {
+    if (!deckId) return;
+    try {
+      const deckRef = doc(db, "decks", deckId);
+      const deckSnap = await getDoc(deckRef);
+      if (deckSnap.exists()) {
+        setDeck({ id: deckSnap.id, ...deckSnap.data() });
+      } else {
+        setDeck(null);
+      }
+    } catch (error) {
+      console.error("Error fetching deck info:", error);
+      setDeck(null);
+    }
+  }
+  fetchDeckInfo();
+}, [deckId]);
+
+  useEffect(() => {
+    async function fetchCards() {
+      if (!deckId) return;
+      setLoading(true);
+      try {
+        const cardsCol = collection(db, "decks", deckId, "cards");
+        const snapshot = await getDocs(cardsCol);
+        const fetchedCards = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCards(fetchedCards);
+      } catch (error) {
+        console.error("Error fetching cards:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCards();
+  }, [deckId]);
 
   function prevCard() {
     setFlipped(false);
-    setCurrent((prev) => (prev === 0 ? cards.length - 1 : prev - 1));
+    setCurrent((prev) => Math.max(0, prev - 1));
   }
 
   function nextCard() {
     setFlipped(false);
-    setCurrent((prev) => (prev === cards.length - 1 ? 0 : prev + 1));
+    setCurrent((prev) => Math.min(cards.length - 1, prev + 1));
   }
 
-  if (!cards.length) {
-    return <div>No cards in this deck.</div>;
-  }
-
+  if (loading) return <div>Loading cards...</div>;
+  if (!cards.length) return <div>No cards in this deck.</div>;
   return (
     <>
       <NavHeader currentUser={props.currentUser} />
-      <div className="flex">
-        <NavigationBar highlight="YourDecks" />
-        <main className="flex-grow p-8 flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold mb-6">Learn: Deck Name</h1>
-          <div className="flex items-center gap-8">
-            
-            <button
-              onClick={prevCard}
-              className="text-3xl px-4 py-2 rounded hover:bg-[#ebd2c7] transition"
-              aria-label="Previous Card"
-            >
-              &#8592;
-            </button>
-
+      <div className="flex min-h-screen bg-gray-50">
+      <NavigationBar highlight="YourDecks" />
+      <main className="flex-grow p-8 flex flex-col items-center min-h-screen bg-[#f9f7f6]">
+        <h1 className="text-3xl font-bold mb-8 text-[#8d382b]">Learn: {deck ? deck.name : "Loading..."}</h1>
+        {deck && <p className="mb-4 text-gray-600">{deck.description}</p>}
+        <div className="flex items-center gap-8">
+          <button
+            onClick={prevCard}
+            className="text-4xl px-5 py-3 rounded-lg bg-[#8d382b] text-white hover:bg-[#a14a3a] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="previous Card"
+            disabled={current === 0}
+          >
+            &#8592;
+          </button>
+          <div
+            className="w-96 h-64 perspective cursor-pointer"
+            onClick={() => setFlipped((f) => !f)}
+          >
             <div
-              className={`w-200 h-150 perspective cursor-pointer`}
-              onClick={() => setFlipped((f) => !f)}
+              className={`relative w-full h-full transition-transform duration-500 ${
+                flipped ? "rotate-y-180" : ""
+              }`}
+              style={{ transformStyle: "preserve-3d" }}
             >
-              <div
-                className={`relative w-full h-full transition-transform duration-500 ${
-                  flipped ? "rotate-y-180" : ""
-                }`}
-                style={{
-                  transformStyle: "preserve-3d",
-                }}
-              >
-                {/* Front */}
-                <div className="absolute w-full h-full bg-[#ebd2c7] rounded-lg shadow-lg flex items-center justify-center text-2xl font-semibold text-[#8d382b] backface-hidden">
-                  {cards[current].question}
-                </div>
-                {/* Back */}
-                <div className="absolute w-full h-full bg-[#ebd2c7] rounded-lg shadow-lg flex items-center justify-center text-2xl font-semibold text-[#5b9aa0] rotate-y-180 backface-hidden">
-                  {cards[current].answer}
-                </div>
+              {/* Front */}
+              <div className="absolute w-full h-full bg-white rounded-lg shadow-lg flex items-center justify-center text-3xl font-semibold text-[#8d382b] backface-hidden p-6">
+                {cards[current].question}
+              </div>
+              {/* Back */}
+              <div className="absolute w-full h-full bg-[#ebd2c7] rounded-lg shadow-lg flex items-center justify-center text-3xl font-semibold text-[#8d382b] rotate-y-180 backface-hidden p-6">
+                {cards[current].answer}
               </div>
             </div>
-
-            <button
-              onClick={nextCard}
-              className="text-3xl px-4 py-2 rounded hover:bg-[#ebd2c7] transition"
-              aria-label="Next Card"
-            >
-              &#8594;
-            </button>
           </div>
-          <div className="mt-4 text-gray-500">
-            Card {current + 1} of {cards.length}
-          </div>
-          <div className="mt-2 text-sm text-gray-400">
-            Click card to flip
-          </div>
-        </main>
+          <button
+            onClick={nextCard}
+            className="text-4xl px-5 py-3 rounded-lg bg-[#8d382b] text-white hover:bg-[#a14a3a] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="next Card"
+            disabled={current === cards.length - 1}
+          >
+            &#8594;
+          </button>
+        </div>
+        <div className="mt-6 text-gray-600 text-lg">
+          Card {current + 1} of {cards.length}
+        </div>
+        <div className="mt-2 text-sm text-gray-400">
+          Click card to flip
+        </div>
+      </main>
       </div>
       <style>
         {`

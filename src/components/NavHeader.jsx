@@ -11,8 +11,12 @@ export default function NavHeader(props) {
   }
 
   function toggleSignInForm() {
-    props.toggleForm();
-    props.showSignIn();
+    if (props.toggleForm) {
+      props.toggleForm();
+    }
+    if (props.showSignIn) {
+      props.showSignIn();
+    }
   }
 
   return (

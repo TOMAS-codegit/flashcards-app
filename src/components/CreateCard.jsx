@@ -11,6 +11,8 @@ export default function CreateCard(props) {
             name="term"
             className="mb-2 block w-full p-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#5b9aa0] focus:border-[#5b9aa0] resize-none"
             placeholder="Enter Term"
+            value={props.answer}
+            onChange={e => props.onChangeAnswer(e.target.value)}
           ></textarea>
           <label
             htmlFor="term"
@@ -24,6 +26,8 @@ export default function CreateCard(props) {
             name="description"
             className="mb-2 block w-full p-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-[#5b9aa0] focus:border-[#5b9aa0] resize-none"
             placeholder="Enter Description"
+            value={props.question}
+            onChange={e => props.onChangeQuestion(e.target.value)}
           ></textarea>
           <div className="flex flex-row space-between w-full justify-between items-center">
             <label

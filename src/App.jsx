@@ -52,12 +52,9 @@ export default function App() {
         }
       />
       <Route
-        path="/yourDecks/learn"
+        path="/yourDecks/learn/:deckId"
         element={
-          <Learn
-            currentUser={currentUser}
-            setCurrentUser={setCurrentUser}
-          />
+          <Learn currentUser={currentUser} setCurrentUser={setCurrentUser} />
         }
       />
       <Route
