@@ -9,6 +9,31 @@ const sampleCards = [
   { question: "What is the largest planet?", answer: "Jupiter" },
 ];
 
+const [flashcards, setFlashcards] = useState([]);
+
+React.useEffect(() => {
+    if (!currentUser) return;
+
+    async function fetchDecks() {
+      try {
+        const q = query(
+          collection(db, "decks"),
+          where("userId", "==", currentUser.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        const userDecks = [];
+        querySnapshot.forEach((doc) => {
+          userDecks.push({ id: doc.id, ...doc.data() });
+        });
+        setDecks(userDecks);
+      } catch (error) {
+        console.error("Error fetching decks:", error);
+      }
+    }
+
+    fetchDecks();
+  }, [currentUser]);
+
 export default function Learn(props) {
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);

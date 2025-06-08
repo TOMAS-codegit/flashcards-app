@@ -17,6 +17,7 @@ export default function Flashcards(props) {
   function AddCard() {
     console.log("card added");
     setCardIds((prevCardIds) => [...prevCardIds, prevCardIds.length]);
+    setCards((prevCards) => [...prevCards, { question: "", answer: "" }]);
   }
 
   async function handleSave(e, redirectToLearn = false) {
@@ -103,19 +104,38 @@ export default function Flashcards(props) {
                 />
               </div>
               <div className="mb-6 space-y-4 max-h-96 overflow-y-auto">
-                {cardIds.map((cardId) => (
-                  <CreateCard
-                    key={cardId}
-                    cardId={cardId}
-                    currentUser={props.currentUser}
-                    setCurrentUser={props.setCurrentUser}
-                    deleteCard={(id) => {
-                      setCardIds((prevCardIds) =>
-                        prevCardIds.filter((card) => card !== id)
-                      );
-                    }}
-                  />
-                ))}
+              {cardIds.map((cardId, index) => (
+                <CreateCard
+                  key={cardId}
+                  cardId={cardId}
+                  question={cards[index]?.question || ""}
+                  answer={cards[index]?.answer || ""}
+                  onChangeQuestion={(value) => {
+                    setCards((prevCards) => {
+                      const newCards = [...prevCards];
+                      newCards[index] = { ...newCards[index], question: value };
+                      return newCards;
+                    });
+                  }}
+                  onChangeAnswer={(value) => {
+                    setCards((prevCards) => {
+                      const newCards = [...prevCards];
+                      newCards[index] = { ...newCards[index], answer: value };
+                      return newCards;
+                    });
+                  }}
+                  currentUser={props.currentUser}
+                  setCurrentUser={props.setCurrentUser}
+                  deleteCard={(id) => {
+                    setCardIds((prevCardIds) =>
+                      prevCardIds.filter((card) => card !== id)
+                    );
+                    setCards((prevCards) =>
+                      prevCards.filter((_, i) => i !== index)
+                    );
+                  }}
+                />
+              ))}
               </div>
               <div className="flex flex-wrap gap-4">
                 <button
