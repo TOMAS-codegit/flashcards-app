@@ -4,12 +4,15 @@ import CreateCard from "../../components/CreateCard";
 import React from "react";
 import { db } from "../../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function Flashcards(props) {
   const [cardIds, setCardIds] = React.useState([]);
   const [deckName, setDeckName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [cards, setCards] = React.useState([]);
+
+  const navigate = useNavigate();
 
   function AddCard() {
     console.log("card added");
@@ -45,6 +48,8 @@ export default function Flashcards(props) {
       if (redirectToLearn) {
         // Redirect to learn page, e.g.:
         // navigate(`/learn/${deckRef.id}`);
+      } else {
+        navigate("/yourDecks");
       }
     } catch (error) {
       console.error("Error saving deck:", error, error.message, error.stack);

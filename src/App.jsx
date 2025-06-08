@@ -7,6 +7,7 @@ import Flashcards from "./pages/flashcards/Flashcards";
 import React from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
+import Learn from "./pages/yourDecks/learn/Learn";
 
 export default function App() {
   const [currentUser, setCurrentUser] = React.useState(null);
@@ -45,6 +46,15 @@ export default function App() {
         path="/yourDecks"
         element={
           <YourDecks
+            currentUser={currentUser}
+            setCurrentUser={setCurrentUser}
+          />
+        }
+      />
+      <Route
+        path="/yourDecks/learn"
+        element={
+          <Learn
             currentUser={currentUser}
             setCurrentUser={setCurrentUser}
           />
