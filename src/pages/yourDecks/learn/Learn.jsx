@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom"; // To get deckId from URL
 import { db } from "../../../firebase";
 import NavHeader from "../../../components/NavHeader";
 import NavigationBar from "../../../components/NavigationBar";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
-
+import { doc, getDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
+import { Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Learn(props) {
   const { deckId } = useParams(); // Make sure your route is /yourDecks/learn/:deckId
@@ -13,6 +14,7 @@ export default function Learn(props) {
   const [flipped, setFlipped] = useState(false);
   const [loading, setLoading] = useState(true);
   const [deck, setDeck] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
   async function fetchDeckInfo() {
@@ -54,6 +56,30 @@ export default function Learn(props) {
     fetchCards();
   }, [deckId]);
 
+  async function deleteDeck() {
+    if (!deckId) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this deck? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+      // Delete all cards in the deck
+      const cardsCol = collection(db, "decks", deckId, "cards");
+      const snapshot = await getDocs(cardsCol);
+      const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+
+      // Delete the deck document
+      const deckRef = doc(db, "decks", deckId);
+      await deleteDoc(deckRef);
+
+      // Navigate back to yourDecks page
+      navigate("/yourDecks");
+    } catch (error) {
+      console.error("Error deleting deck:", error);
+      alert("Failed to delete the deck. Please try again.");
+    }
+  }
+
   function prevCard() {
     setFlipped(false);
     setCurrent((prev) => Math.max(0, prev - 1));
@@ -72,7 +98,14 @@ export default function Learn(props) {
       <div className="flex min-h-screen bg-gray-50">
       <NavigationBar highlight="YourDecks" />
       <main className="flex-grow p-8 flex flex-col items-center min-h-screen bg-[#f9f7f6]">
+        <div className="flex justify-between items-center w-full">
         <h1 className="text-3xl font-bold mb-8 text-[#8d382b]">Learn: {deck ? deck.name : "Loading..."}</h1>
+        <div className="flex gap-4">
+        <button onClick={() => navigate(`/flashcards/${deckId}`)}>EDIT</button>
+        <button onClick={deleteDeck}><Trash2 /></button>
+        </div>
+        </div>
+
         {deck && <p className="mb-4 text-gray-600">{deck.description}</p>}
         <div className="flex items-center gap-8">
           <button
@@ -84,7 +117,7 @@ export default function Learn(props) {
             &#8592;
           </button>
           <div
-            className="w-300 h-200 perspective cursor-pointer"
+            className="w-300 h-150 perspective cursor-pointer"
             onClick={() => setFlipped((f) => !f)}
           >
             <div

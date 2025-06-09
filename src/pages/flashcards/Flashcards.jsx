@@ -3,10 +3,21 @@ import NavHeader from "../../components/NavHeader";
 import CreateCard from "../../components/CreateCard";
 import React from "react";
 import { db } from "../../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  updateDoc,
+  query,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function Flashcards(props) {
+  const { deckId } = useParams();
   const [cardIds, setCardIds] = React.useState([]);
   const [deckName, setDeckName] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -14,8 +25,39 @@ export default function Flashcards(props) {
 
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    async function fetchDeck() {
+      if (!deckId) return;
+      try {
+        const deckRef = doc(db, "decks", deckId);
+        const deckSnap = await getDoc(deckRef);
+        if (deckSnap.exists()) {
+          const deckData = deckSnap.data();
+          setDeckName(deckData.name || "");
+          setDescription(deckData.description || "");
+          // Fetch cards
+          const cardsCol = collection(db, "decks", deckId, "cards");
+          const cardsSnapshot = await getDocs(cardsCol);
+          const fetchedCards = cardsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setCards(fetchedCards);
+          setCardIds(fetchedCards.map((_, index) => index));
+        } else {
+          setDeckName("");
+          setDescription("");
+          setCards([]);
+          setCardIds([]);
+        }
+      } catch (error) {
+        console.error("Error fetching deck:", error);
+      }
+    }
+    fetchDeck();
+  }, [deckId]);
+
   function AddCard() {
-    console.log("card added");
     setCardIds((prevCardIds) => [...prevCardIds, prevCardIds.length]);
     setCards((prevCards) => [...prevCards, { question: "", answer: "" }]);
   }
@@ -29,27 +71,77 @@ export default function Flashcards(props) {
     }
 
     try {
-      const deckRef = await addDoc(collection(db, "decks"), {
-        name: deckName,
-        description,
-        userId: props.currentUser.uid,
-        createdAt: serverTimestamp(),
-      });
+      if (deckId) {
+        // Update existing deck
+        const deckRef = doc(db, "decks", deckId);
+        await updateDoc(deckRef, {
+          name: deckName,
+          description,
+        });
 
-      const cardsPromises = cards.map((card) =>
-        addDoc(collection(db, "decks", deckRef.id, "cards"), {
-          question: card.question,
-          answer: card.answer,
-          createdAt: serverTimestamp(),
-        })
-      );
-      await Promise.all(cardsPromises);
+        // Delete removed cards
+        const existingCardIds = cards.map((card) => card.id).filter(Boolean);
+        const cardsCol = collection(db, "decks", deckId, "cards");
+        const cardsSnapshot = await getDocs(cardsCol);
+        const cardsInDb = cardsSnapshot.docs.map((doc) => doc.id);
+        const cardsToDelete = cardsInDb.filter(
+          (id) => !existingCardIds.includes(id)
+        );
+        const deletePromises = cardsToDelete.map((id) =>
+          deleteDoc(doc(db, "decks", deckId, "cards", id))
+        );
+        await Promise.all(deletePromises);
 
-      alert("Deck saved successfully!");
-      if (redirectToLearn) {
-        navigate(`/learn/${deckRef.id}`)
+        // Update or add cards
+        const updatePromises = cards.map((card) => {
+          if (card.id) {
+            // Update existing card
+            const cardRef = doc(db, "decks", deckId, "cards", card.id);
+            return updateDoc(cardRef, {
+              question: card.question,
+              answer: card.answer,
+            });
+          } else {
+            // Add new card
+            return addDoc(collection(db, "decks", deckId, "cards"), {
+              question: card.question,
+              answer: card.answer,
+              createdAt: serverTimestamp(),
+            });
+          }
+        });
+        await Promise.all(updatePromises);
+
+        alert("Deck updated successfully!");
+        if (redirectToLearn) {
+          navigate(`/yourDecks/learn/${deckId}`);
+        } else {
+          navigate("/yourDecks");
+        }
       } else {
-        navigate("/yourDecks");
+        // Create new deck
+        const deckRef = await addDoc(collection(db, "decks"), {
+          name: deckName,
+          description,
+          userId: props.currentUser.uid,
+          createdAt: serverTimestamp(),
+        });
+
+        const cardsPromises = cards.map((card) =>
+          addDoc(collection(db, "decks", deckRef.id, "cards"), {
+            question: card.question,
+            answer: card.answer,
+            createdAt: serverTimestamp(),
+          })
+        );
+        await Promise.all(cardsPromises);
+
+        alert("Deck saved successfully!");
+        if (redirectToLearn) {
+          navigate(`/yourDecks/learn/${deckRef.id}`);
+        } else {
+          navigate("/yourDecks");
+        }
       }
     } catch (error) {
       console.error("Error saving deck:", error, error.message, error.stack);
@@ -65,7 +157,7 @@ export default function Flashcards(props) {
         <main className="flex-grow p-8 max-w-5xl mx-auto">
           <section className="bg-[#ebd2c7] rounded-lg shadow-md p-6">
             <h1 className="text-3xl font-semibold mb-6 text-[#8d382b]">
-              Create New Flashcard Deck
+              {deckId ? "Edit Flashcard Deck" : "Create New Flashcard Deck"}
             </h1>
             <form onSubmit={(e) => handleSave(e, false)}>
               <div className="mb-4">

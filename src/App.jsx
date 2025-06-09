@@ -58,7 +58,7 @@ export default function App() {
         }
       />
       <Route
-        path="/flashcards"
+        path="/flashcards/:deckId?"
         element={
           <Flashcards
             currentUser={currentUser}
