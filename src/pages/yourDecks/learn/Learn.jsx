@@ -61,7 +61,7 @@ export default function Learn(props) {
 
   function nextCard() {
     setFlipped(false);
-    setCurrent((prev) => Math.min(cards.length - 1, prev + 1));
+    setCurrent((prev) => Math.min(cards.length - 1, prev + 1)); 
   }
 
   if (loading) return <div>Loading cards...</div>;
@@ -84,7 +84,7 @@ export default function Learn(props) {
             &#8592;
           </button>
           <div
-            className="w-96 h-64 perspective cursor-pointer"
+            className="w-300 h-200 perspective cursor-pointer"
             onClick={() => setFlipped((f) => !f)}
           >
             <div
@@ -93,11 +93,9 @@ export default function Learn(props) {
               }`}
               style={{ transformStyle: "preserve-3d" }}
             >
-              {/* Front */}
-              <div className="absolute w-full h-full bg-white rounded-lg shadow-lg flex items-center justify-center text-3xl font-semibold text-[#8d382b] backface-hidden p-6">
+              <div className="absolute w-full h-full bg-[#ebd2c7] rounded-lg shadow-lg flex items-center justify-center text-3xl font-semibold text-[#8d382b] backface-hidden p-6">
                 {cards[current].question}
               </div>
-              {/* Back */}
               <div className="absolute w-full h-full bg-[#ebd2c7] rounded-lg shadow-lg flex items-center justify-center text-3xl font-semibold text-[#8d382b] rotate-y-180 backface-hidden p-6">
                 {cards[current].answer}
               </div>

@@ -43,20 +43,22 @@ export default function YourDecks(props) {
             decks.length === 0 ? (
               <p>No decks found. Create one!</p>
             ) : (
-              <ul className="space-y-4">
-                {decks.map((deck) => (
+              <div className="max-h-180 overflow-y-auto">
+                <ul className="space-y-4">
+                  {decks.map((deck) => (
 
-                  <DeckFolder 
-                    id = {deck.id}
-                    key = {deck.id}
-                    name = {deck.name}
-                    description = {deck.description}
-                    createdAt = {deck.createdAt?.toDate?.().toLocaleString?.() || "Unknown"}
-                  />
+                    <DeckFolder 
+                      id = {deck.id}
+                      key = {deck.id}
+                      name = {deck.name}
+                      description = {deck.description}
+                      createdAt = {deck.createdAt?.toDate?.().toLocaleString?.() || "Unknown"}
+                    />
 
-                  
-                ))}
-              </ul>
+
+                  ))}
+                </ul>
+              </div>
             )
           ) : (
             <p>Please log in to see your decks.</p>
